@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Upgrade to Yoga commit [08250431e09bc4b864917e51f9e9d52998ee2dce](https://github.com/facebook/yoga/commit/08250431e09bc4b864917e51f9e9d52998ee2dce)
+- `Errata` is now a bitflag newtype (so combinations such as `Errata::StretchFlexBasis | Errata::AbsolutePercentAgainstInnerSize` can be represented); added `ExperimentalFeature`
+- Added `Config` wrappers: `set_errata`/`get_errata`, `set_experimental_feature_enabled`/`is_experimental_feature_enabled`, `set_point_scale_factor`/`get_point_scale_factor`, `set_use_web_defaults`/`get_use_web_defaults`
+- Added `Node` wrappers: `get_layout_had_overflow`, `get_layout_raw_width`/`get_layout_raw_height`, `set_node_type`/`get_node_type`, `set_always_forms_containing_block`/`get_always_forms_containing_block`, `set_is_reference_baseline`/`is_reference_baseline`, `has_measure_func`, `has_baseline_func`, `get_has_new_layout`/`set_has_new_layout`, and the min-content APIs (`set_min_content_measure_func`, `has_min_content_measure_func`, `set_min_content_width`/`get_min_content_width`, `set_min_content_height`/`get_min_content_height`)
+- Added `MaxContent`, `FitContent` and `Stretch` variants to `StyleUnit` (new Yoga units)
+- `Node::get_gap`, `get_row_gap` and `get_column_gap` now return a `StyleUnit` (Yoga's getter returns a `YGValue`) and take `&self`
+- Yoga is compiled with `-ffp-contract=off` so its float results do not depend on fused multiply-add contraction
+
 ## 0.5.0
 Released: 17th Jan 2025
 

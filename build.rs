@@ -67,6 +67,9 @@ fn main() {
 		.flag("-Wall")
 		.flag("-O3")
 		.flag("-fPIC")
+		// Keep the float operations identical to the source (no fused multiply-add
+		// contraction) so results can be compared bit-for-bit with other implementations
+		.flag("-ffp-contract=off")
 		// Include path
 		.include("src/yoga")
 		// C++ Files
@@ -103,6 +106,7 @@ fn main() {
         .allowlist_var("YG.*")
         .layout_tests(false)
         .formatter(bindgen::Formatter::Rustfmt)
+        .bitfield_enum("YGErrata")
         .rustified_enum("YG.*")
         .prepend_enum_name(false)
         .parse_callbacks(Box::new(BindgenCallbacks))

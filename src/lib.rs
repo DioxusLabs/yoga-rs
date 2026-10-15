@@ -25,6 +25,8 @@ mod ffi_types {
     pub type Direction = internal::YGDirection;
     pub type Display = internal::YGDisplay;
     pub type Edge = internal::YGEdge;
+    pub type Errata = internal::YGErrata;
+    pub type ExperimentalFeature = internal::YGExperimentalFeature;
     pub type FlexDirection = internal::YGFlexDirection;
     pub type Gutter = internal::YGGutter;
     pub type Justify = internal::YGJustify;
@@ -67,6 +69,47 @@ impl Default for Config {
 impl Config {
     pub fn new() -> Config {
         Config { inner_config: unsafe { internal::YGConfigNew() } }
+    }
+
+    pub fn set_use_web_defaults(&mut self, enabled: bool) {
+        unsafe { internal::YGConfigSetUseWebDefaults(self.inner_config, enabled) }
+    }
+
+    pub fn get_use_web_defaults(&self) -> bool {
+        unsafe { internal::YGConfigGetUseWebDefaults(self.inner_config) }
+    }
+
+    /// Set the point scale factor used for pixel-grid rounding (0 disables rounding).
+    pub fn set_point_scale_factor(&mut self, pixels_in_point: f32) {
+        unsafe { internal::YGConfigSetPointScaleFactor(self.inner_config, pixels_in_point) }
+    }
+
+    pub fn get_point_scale_factor(&self) -> f32 {
+        unsafe { internal::YGConfigGetPointScaleFactor(self.inner_config) }
+    }
+
+    /// Set the errata bits (`Errata::None`, `Errata::All`, `Errata::Classic`, or a
+    /// combination of individual bits).
+    pub fn set_errata(&mut self, errata: Errata) {
+        unsafe { internal::YGConfigSetErrata(self.inner_config, errata) }
+    }
+
+    pub fn get_errata(&self) -> Errata {
+        unsafe { internal::YGConfigGetErrata(self.inner_config) }
+    }
+
+    pub fn set_experimental_feature_enabled(
+        &mut self,
+        feature: ExperimentalFeature,
+        enabled: bool,
+    ) {
+        unsafe {
+            internal::YGConfigSetExperimentalFeatureEnabled(self.inner_config, feature, enabled)
+        }
+    }
+
+    pub fn is_experimental_feature_enabled(&self, feature: ExperimentalFeature) -> bool {
+        unsafe { internal::YGConfigIsExperimentalFeatureEnabled(self.inner_config, feature) }
     }
 }
 
@@ -256,7 +299,10 @@ impl Node {
     pub fn set_position(&mut self, edge: Edge, position: StyleUnit) {
         unsafe {
             match position {
-                StyleUnit::UndefinedValue => {
+                StyleUnit::UndefinedValue
+                | StyleUnit::MaxContent
+                | StyleUnit::FitContent
+                | StyleUnit::Stretch => {
                     internal::YGNodeStyleSetPosition(self.inner_node, edge, Undefined)
                 },
                 StyleUnit::Point(val) => {
@@ -316,6 +362,13 @@ impl Node {
                     internal::YGNodeStyleSetFlexBasisPercent(self.inner_node, val.into_inner())
                 },
                 StyleUnit::Auto => internal::YGNodeStyleSetFlexBasisAuto(self.inner_node),
+                StyleUnit::MaxContent => {
+                    internal::YGNodeStyleSetFlexBasisMaxContent(self.inner_node)
+                },
+                StyleUnit::FitContent => {
+                    internal::YGNodeStyleSetFlexBasisFitContent(self.inner_node)
+                },
+                StyleUnit::Stretch => internal::YGNodeStyleSetFlexBasisStretch(self.inner_node),
             }
         }
     }
@@ -329,7 +382,10 @@ impl Node {
     pub fn set_margin(&mut self, edge: Edge, margin: StyleUnit) {
         unsafe {
             match margin {
-                StyleUnit::UndefinedValue => {
+                StyleUnit::UndefinedValue
+                | StyleUnit::MaxContent
+                | StyleUnit::FitContent
+                | StyleUnit::Stretch => {
                     internal::YGNodeStyleSetMargin(self.inner_node, edge, Undefined)
                 },
                 StyleUnit::Point(val) => {
@@ -346,7 +402,10 @@ impl Node {
     pub fn set_padding(&mut self, edge: Edge, padding: StyleUnit) {
         unsafe {
             match padding {
-                StyleUnit::UndefinedValue => {
+                StyleUnit::UndefinedValue
+                | StyleUnit::MaxContent
+                | StyleUnit::FitContent
+                | StyleUnit::Stretch => {
                     internal::YGNodeStyleSetPadding(self.inner_node, edge, Undefined)
                 },
                 StyleUnit::Point(val) => {
@@ -382,6 +441,9 @@ impl Node {
                     internal::YGNodeStyleSetWidthPercent(self.inner_node, val.into_inner())
                 },
                 StyleUnit::Auto => internal::YGNodeStyleSetWidthAuto(self.inner_node),
+                StyleUnit::MaxContent => internal::YGNodeStyleSetWidthMaxContent(self.inner_node),
+                StyleUnit::FitContent => internal::YGNodeStyleSetWidthFitContent(self.inner_node),
+                StyleUnit::Stretch => internal::YGNodeStyleSetWidthStretch(self.inner_node),
             }
         }
     }
@@ -399,6 +461,9 @@ impl Node {
                     internal::YGNodeStyleSetHeightPercent(self.inner_node, val.into_inner())
                 },
                 StyleUnit::Auto => internal::YGNodeStyleSetHeightAuto(self.inner_node),
+                StyleUnit::MaxContent => internal::YGNodeStyleSetHeightMaxContent(self.inner_node),
+                StyleUnit::FitContent => internal::YGNodeStyleSetHeightFitContent(self.inner_node),
+                StyleUnit::Stretch => internal::YGNodeStyleSetHeightStretch(self.inner_node),
             }
         }
     }
@@ -417,6 +482,13 @@ impl Node {
                 },
                 // auto is not a valid value for min_width
                 StyleUnit::Auto => internal::YGNodeStyleSetMinWidth(self.inner_node, Undefined),
+                StyleUnit::MaxContent => {
+                    internal::YGNodeStyleSetMinWidthMaxContent(self.inner_node)
+                },
+                StyleUnit::FitContent => {
+                    internal::YGNodeStyleSetMinWidthFitContent(self.inner_node)
+                },
+                StyleUnit::Stretch => internal::YGNodeStyleSetMinWidthStretch(self.inner_node),
             }
         }
     }
@@ -435,6 +507,13 @@ impl Node {
                 },
                 // auto is not a valid value for min_height
                 StyleUnit::Auto => internal::YGNodeStyleSetMinHeight(self.inner_node, Undefined),
+                StyleUnit::MaxContent => {
+                    internal::YGNodeStyleSetMinHeightMaxContent(self.inner_node)
+                },
+                StyleUnit::FitContent => {
+                    internal::YGNodeStyleSetMinHeightFitContent(self.inner_node)
+                },
+                StyleUnit::Stretch => internal::YGNodeStyleSetMinHeightStretch(self.inner_node),
             }
         }
     }
@@ -453,6 +532,13 @@ impl Node {
                 },
                 // auto is not a valid value for max_width
                 StyleUnit::Auto => internal::YGNodeStyleSetMaxWidth(self.inner_node, Undefined),
+                StyleUnit::MaxContent => {
+                    internal::YGNodeStyleSetMaxWidthMaxContent(self.inner_node)
+                },
+                StyleUnit::FitContent => {
+                    internal::YGNodeStyleSetMaxWidthFitContent(self.inner_node)
+                },
+                StyleUnit::Stretch => internal::YGNodeStyleSetMaxWidthStretch(self.inner_node),
             }
         }
     }
@@ -471,6 +557,13 @@ impl Node {
                 },
                 // auto is not a valid value for max_height
                 StyleUnit::Auto => internal::YGNodeStyleSetMaxHeight(self.inner_node, Undefined),
+                StyleUnit::MaxContent => {
+                    internal::YGNodeStyleSetMaxHeightMaxContent(self.inner_node)
+                },
+                StyleUnit::FitContent => {
+                    internal::YGNodeStyleSetMaxHeightFitContent(self.inner_node)
+                },
+                StyleUnit::Stretch => internal::YGNodeStyleSetMaxHeightStretch(self.inner_node),
             }
         }
     }
@@ -570,16 +663,16 @@ impl Node {
         self.set_gap(Gutter::Row, gap);
     }
 
-    pub fn get_row_gap(&mut self) -> f32 {
-        unsafe { internal::YGNodeStyleGetGap(self.inner_node, Gutter::Row) }
+    pub fn get_row_gap(&self) -> StyleUnit {
+        unsafe { internal::YGNodeStyleGetGap(self.inner_node, Gutter::Row).into() }
     }
 
     pub fn set_column_gap(&mut self, gap: StyleUnit) {
         self.set_gap(Gutter::Column, gap);
     }
 
-    pub fn get_column_gap(&mut self) -> f32 {
-        unsafe { internal::YGNodeStyleGetGap(self.inner_node, Gutter::Column) }
+    pub fn get_column_gap(&self) -> StyleUnit {
+        unsafe { internal::YGNodeStyleGetGap(self.inner_node, Gutter::Column).into() }
     }
 
     pub fn set_gap(&mut self, gap_type: Gutter, gap: StyleUnit) {
@@ -590,14 +683,18 @@ impl Node {
             StyleUnit::Percent(val) => unsafe {
                 internal::YGNodeStyleSetGapPercent(self.inner_node, gap_type, val.into_inner());
             },
-            StyleUnit::UndefinedValue | StyleUnit::Auto => unsafe {
+            StyleUnit::UndefinedValue
+            | StyleUnit::Auto
+            | StyleUnit::MaxContent
+            | StyleUnit::FitContent
+            | StyleUnit::Stretch => unsafe {
                 internal::YGNodeStyleSetGap(self.inner_node, gap_type, 0.0);
             },
         }
     }
 
-    pub fn get_gap(&mut self, gap_type: Gutter) -> f32 {
-        unsafe { internal::YGNodeStyleGetGap(self.inner_node, gap_type) }
+    pub fn get_gap(&self, gap_type: Gutter) -> StyleUnit {
+        unsafe { internal::YGNodeStyleGetGap(self.inner_node, gap_type).into() }
     }
 
     pub fn get_style_position_left(&self) -> StyleUnit {
@@ -817,6 +914,103 @@ impl Node {
         unsafe { internal::YGNodeIsDirty(self.inner_node) }
     }
 
+    pub fn get_has_new_layout(&self) -> bool {
+        unsafe { internal::YGNodeGetHasNewLayout(self.inner_node) }
+    }
+
+    pub fn set_has_new_layout(&mut self, has_new_layout: bool) {
+        unsafe { internal::YGNodeSetHasNewLayout(self.inner_node, has_new_layout) }
+    }
+
+    /// Whether the content of this node overflowed during the last layout.
+    pub fn get_layout_had_overflow(&self) -> bool {
+        unsafe { internal::YGNodeLayoutGetHadOverflow(self.inner_node) }
+    }
+
+    /// Layout width before pixel-grid rounding.
+    pub fn get_layout_raw_width(&self) -> f32 {
+        unsafe { internal::YGNodeLayoutGetRawWidth(self.inner_node) }
+    }
+
+    /// Layout height before pixel-grid rounding.
+    pub fn get_layout_raw_height(&self) -> f32 {
+        unsafe { internal::YGNodeLayoutGetRawHeight(self.inner_node) }
+    }
+
+    pub fn set_node_type(&mut self, node_type: NodeType) {
+        unsafe { internal::YGNodeSetNodeType(self.inner_node, node_type) }
+    }
+
+    pub fn get_node_type(&self) -> NodeType {
+        unsafe { internal::YGNodeGetNodeType(self.inner_node) }
+    }
+
+    /// Make this node the containing block of its absolutely positioned descendants
+    /// regardless of its position type.
+    pub fn set_always_forms_containing_block(&mut self, always_forms_containing_block: bool) {
+        unsafe {
+            internal::YGNodeSetAlwaysFormsContainingBlock(
+                self.inner_node,
+                always_forms_containing_block,
+            )
+        }
+    }
+
+    pub fn get_always_forms_containing_block(&self) -> bool {
+        unsafe { internal::YGNodeGetAlwaysFormsContainingBlock(self.inner_node) }
+    }
+
+    pub fn set_is_reference_baseline(&mut self, is_reference_baseline: bool) {
+        unsafe { internal::YGNodeSetIsReferenceBaseline(self.inner_node, is_reference_baseline) }
+    }
+
+    pub fn is_reference_baseline(&self) -> bool {
+        unsafe { internal::YGNodeIsReferenceBaseline(self.inner_node) }
+    }
+
+    pub fn has_measure_func(&self) -> bool {
+        unsafe { internal::YGNodeHasMeasureFunc(self.inner_node) }
+    }
+
+    pub fn has_baseline_func(&self) -> bool {
+        unsafe { internal::YGNodeHasBaselineFunc(self.inner_node) }
+    }
+
+    pub fn has_min_content_measure_func(&self) -> bool {
+        unsafe { internal::YGNodeHasMinContentMeasureFunc(self.inner_node) }
+    }
+
+    /// Set a dedicated measure function for the node's min-content size, used by the
+    /// automatic minimum size of flex items when the min size is undefined.
+    pub fn set_min_content_measure_func(&mut self, func: Option<MinContentMeasureFunc>) {
+        match func {
+            Some(f) => unsafe {
+                let casted_func: UnsafeMinContentMeasureFunc = std::mem::transmute(f as usize);
+                internal::YGNodeSetMinContentMeasureFunc(self.inner_node, Some(casted_func));
+            },
+            None => unsafe {
+                internal::YGNodeSetMinContentMeasureFunc(self.inner_node, None);
+            },
+        }
+    }
+
+    /// Static min-content width, taking precedence over any min-content measure function.
+    pub fn set_min_content_width(&mut self, min_content_width: f32) {
+        unsafe { internal::YGNodeSetMinContentWidth(self.inner_node, min_content_width) }
+    }
+
+    pub fn get_min_content_width(&self) -> f32 {
+        unsafe { internal::YGNodeGetMinContentWidth(self.inner_node) }
+    }
+
+    pub fn set_min_content_height(&mut self, min_content_height: f32) {
+        unsafe { internal::YGNodeSetMinContentHeight(self.inner_node, min_content_height) }
+    }
+
+    pub fn get_min_content_height(&self) -> f32 {
+        unsafe { internal::YGNodeGetMinContentHeight(self.inner_node) }
+    }
+
     pub fn copy_style(&self, src_node: &Node) {
         unsafe { internal::YGNodeCopyStyle(self.inner_node, src_node.inner_node) }
     }
@@ -869,6 +1063,7 @@ impl Node {
         Context::get_inner_ref(raw)
     }
 
+    #[allow(clippy::mut_from_ref)]
     pub fn get_context_mut(&self) -> Option<&mut Box<dyn Any>> {
         let raw = unsafe { internal::YGNodeGetContext(self.inner_node) };
         Context::get_inner_mut(raw)
@@ -889,4 +1084,3 @@ pub fn get_node_ref_context_mut(node_mut: &mut NodeMut) -> Option<&mut Box<dyn A
     let raw = unsafe { internal::YGNodeGetContext(*node_mut as NodeRef) };
     Context::get_inner_mut(raw)
 }
-    #[allow(clippy::mut_from_ref)]

@@ -5,6 +5,9 @@ use std::{any::Any, ops::Deref, os::raw::c_void};
 pub type BaselineFunc = extern "C" fn(NodeRef, f32, f32) -> f32;
 pub(crate) type UnsafeBaselineFunc = unsafe extern "C" fn(NodeRef, f32, f32) -> f32;
 pub type MeasureFunc = extern "C" fn(NodeRef, f32, MeasureMode, f32, MeasureMode) -> Size;
+pub type MinContentMeasureFunc = extern "C" fn(NodeRef, f32, MeasureMode, f32, MeasureMode) -> Size;
+pub(crate) type UnsafeMinContentMeasureFunc =
+    unsafe extern "C" fn(NodeRef, f32, MeasureMode, f32, MeasureMode) -> Size;
 pub(crate) type UnsafeMeasureFunc =
     unsafe extern "C" fn(NodeRef, f32, MeasureMode, f32, MeasureMode) -> Size;
 
@@ -222,7 +225,7 @@ macro_rules! style {
 			$(
 				flex_style!($s(unit!($($unit)*))),
 			)*
-		))
+		])
 	};
 }
 

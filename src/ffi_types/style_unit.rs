@@ -8,6 +8,9 @@ pub enum StyleUnit {
     Point(OrderedFloat<f32>),
     Percent(OrderedFloat<f32>),
     Auto,
+    MaxContent,
+    FitContent,
+    Stretch,
 }
 
 impl From<StyleUnit> for internal::YGUnit {
@@ -17,6 +20,9 @@ impl From<StyleUnit> for internal::YGUnit {
             StyleUnit::Point(_) => internal::YGUnit::Point,
             StyleUnit::Percent(_) => internal::YGUnit::Percent,
             StyleUnit::Auto => internal::YGUnit::Auto,
+            StyleUnit::MaxContent => internal::YGUnit::MaxContent,
+            StyleUnit::FitContent => internal::YGUnit::FitContent,
+            StyleUnit::Stretch => internal::YGUnit::Stretch,
         }
     }
 }
@@ -28,6 +34,9 @@ impl From<internal::YGValue> for StyleUnit {
             internal::YGUnit::Point => StyleUnit::Point(OrderedFloat(v.value)),
             internal::YGUnit::Percent => StyleUnit::Percent(OrderedFloat(v.value)),
             internal::YGUnit::Auto => StyleUnit::Auto,
+            internal::YGUnit::MaxContent => StyleUnit::MaxContent,
+            internal::YGUnit::FitContent => StyleUnit::FitContent,
+            internal::YGUnit::Stretch => StyleUnit::Stretch,
         }
     }
 }
