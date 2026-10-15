@@ -123,5 +123,5 @@ fn main() {
     );
     write(&out_file, patched).expect("Unable to write patched bindings");
 
-    println!("Bindings written to {}", &out_file.display());
+    println!("Bindings written to {}", out_file.display());
 }

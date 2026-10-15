@@ -218,7 +218,7 @@ macro_rules! flex_style {
 #[macro_export]
 macro_rules! style {
 	( $x:expr, $($s:tt($($unit:tt)*)),* ) => {
-		$x.apply_styles(&vec!(
+		$x.apply_styles(&vec![
 			$(
 				flex_style!($s(unit!($($unit)*))),
 			)*
@@ -229,10 +229,10 @@ macro_rules! style {
 #[macro_export]
 macro_rules! make_styles {
 	( $($s:tt($($unit:tt)*)),* ) => {
-		vec!(
+		vec![
 			$(
 				flex_style!($s(unit!($($unit)*))),
 			)*
-		)
+		]
 	};
 }

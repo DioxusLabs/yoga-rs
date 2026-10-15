@@ -889,3 +889,4 @@ pub fn get_node_ref_context_mut(node_mut: &mut NodeMut) -> Option<&mut Box<dyn A
     let raw = unsafe { internal::YGNodeGetContext(*node_mut as NodeRef) };
     Context::get_inner_mut(raw)
 }
+    #[allow(clippy::mut_from_ref)]
